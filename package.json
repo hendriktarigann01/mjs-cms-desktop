@@ -1,0 +1,111 @@
+{
+  "name": "mjs-cms-desktop",
+  "version": "1.0.0",
+  "description": "Converra is a real-time, multi-platform multimedia content scheduling and distribution management system.",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "clean": "rimraf out dist-electron release node_modules/.cache",
+    "clean:build": "rimraf out dist-electron",
+    "dev": "npm run build:electron && concurrently \"npm run dev:next\" \"npm run dev:electron\"",
+    "dev:next": "next dev -p 3001",
+    "dev:electron": "wait-on http://localhost:3001 && cross-env NODE_ENV=development electron .",
+    "build": "npm run clean:build && npm run build:next && npm run build:electron",
+    "build:next": "cross-env NODE_ENV=production next build --webpack && npm run fix:paths",
+    "fix:paths": "node scripts/fix-html-paths.js",
+    "build:electron": "tsc -p tsconfig.electron.json",
+    "dist": "npm run build && electron-builder --config.compression=maximum",
+    "dist:win": "npm run build && electron-builder --win --x64 --config.compression=maximum",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.converra.player",
+    "productName": "Converra Player",
+    "directories": {
+      "output": "release",
+      "buildResources": "resources"
+    },
+    "files": [
+      "dist-electron/**/*",
+      "out/**/*",
+      "!out/**/*.map",
+      "!out/**/*.txt",
+      "package.json",
+      "node_modules/electron-updater/**/*",
+      "node_modules/electron-log/**/*",
+      "node_modules/electron-store/**/*",
+      "node_modules/pusher-js/**/*",
+      "!node_modules/**/README.md",
+      "!node_modules/**/CHANGELOG.md",
+      "!node_modules/**/LICENSE.txt",
+      "!node_modules/**/*.d.ts",
+      "!node_modules/**/*.map"
+    ],
+    "asarUnpack": [
+      "dist-electron/preload.js",
+      "node_modules/electron-store/**/*"
+    ],
+    "compression": "maximum",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "resources/icon.ico",
+      "compression": "maximum",
+      "requestedExecutionLevel": "requireAdministrator",
+      "signAndEditExecutable": false,
+      "forceCodeSigning": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "resources/icon.ico",
+      "uninstallerIcon": "resources/icon.ico",
+      "runAfterFinish": true,
+      "differentialPackage": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "hendriktarigann01",
+      "repo": "converra-player",
+      "releaseType": "release"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron-log": "^5.4.3",
+    "electron-serve": "^3.0.0",
+    "electron-store": "^11.0.2",
+    "electron-updater": "^6.6.2",
+    "lucide-react": "^0.562.0",
+    "next": "^16.1.1",
+    "pusher-js": "^8.4.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^25.0.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
+    "png-to-ico": "3.0.1",
+    "rimraf": "^6.1.2",
+    "sharp": "0.34.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "wait-on": "^9.0.3"
+  }
+}

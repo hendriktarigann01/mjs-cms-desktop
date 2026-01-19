@@ -1,0 +1,74 @@
+; NSIS Installer Script for Signage Player
+; This script adds auto-start functionality
+
+!macro customInstall
+  ; Add registry entry for auto-start on Windows boot
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Run" "SignagePlayer" "$INSTDIR\Signage Player.exe"
+  
+  ; Log installation
+  DetailPrint "Auto-start registry entry created"
+  
+  ; Create uninstaller registry entry
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SignagePlayer" "DisplayName" "Signage Player"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SignagePlayer" "UninstallString" "$INSTDIR\Uninstall.exe"
+!macroend
+
+!macro customUnInstall
+  ; Remove auto-start registry entry
+  DeleteRegValue HKLM "Software\Microsoft\Windows\CurrentVersion\Run" "SignagePlayer"
+  
+  ; Remove uninstaller registry entry
+  DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\SignagePlayer"
+  
+  ; Log uninstallation
+  DetailPrint "Auto-start registry entry removed"
+!macroend
+
+; Custom page to ask user about auto-start preference
+!macro customInstallPage
+  PageEx custom
+    PageCallbacks customPageCreate customPageLeave
+  PageExEnd
+!macroend
+
+Function customPageCreate
+  !insertmacro MUI_HEADER_TEXT "Auto-Start Configuration" "Configure application startup behavior"
+  
+  nsDialogs::Create 1018
+  Pop $0
+  
+  ${NSD_CreateLabel} 0 0 100% 20u "Do you want Signage Player to start automatically when Windows starts?"
+  Pop $0
+  
+  ${NSD_CreateCheckbox} 0 30u 100% 12u "Start automatically on system boot (Recommended)"
+  Pop $1
+  ${NSD_Check} $1  ; Check by default
+  
+  nsDialogs::Show
+FunctionEnd
+
+Function customPageLeave
+  ${NSD_GetState} $1 $0
+  ${If} $0 == ${BST_CHECKED}
+    ; User wants auto-start
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Run" "SignagePlayer" "$INSTDIR\Signage Player.exe"
+  ${Else}
+    ; User doesn't want auto-start
+    DeleteRegValue HKLM "Software\Microsoft\Windows\CurrentVersion\Run" "SignagePlayer"
+  ${EndIf}
+FunctionEnd
+
+; Additional Windows Task Scheduler setup (more reliable than registry)
+!macro customTaskScheduler
+  ; Create scheduled task to run on user logon
+  nsExec::ExecToLog 'schtasks /Create /TN "SignagePlayer" /TR "$INSTDIR\Signage Player.exe" /SC ONLOGON /RL HIGHEST /F'
+  
+  DetailPrint "Task Scheduler entry created"
+!macroend
+
+!macro customTaskSchedulerUninstall
+  ; Remove scheduled task
+  nsExec::ExecToLog 'schtasks /Delete /TN "SignagePlayer" /F'
+  
+  DetailPrint "Task Scheduler entry removed"
+!macroend

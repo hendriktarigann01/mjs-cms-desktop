@@ -1,0 +1,29 @@
+{
+  appId: "com.converra.player",
+  productName: "Converra Player",
+  directories: {
+    output: "release",
+    buildResources: "resources",
+  },
+  files: ["dist-electron/**/*", "out/**/*", "public/**/*", "package.json"],
+  win: {
+    target: ["nsis"],
+    icon: "resources/icon.ico",
+    requestedExecutionLevel: "requireAdministrator",
+    signAndEditExecutable: false,
+    forceCodeSigning: false,
+  },
+  nsis: {
+    oneClick: false,
+    allowToChangeInstallationDirectory: true,
+    createDesktopShortcut: true,
+    createStartMenuShortcut: true,
+    runAfterFinish: true,
+    installerIcon: "resources/icon.ico",
+    uninstallerIcon: "resources/icon.ico",
+  },
+  publish: {
+    provider: "generic",
+    url: "https://your-cdn.com/updates/",
+  },
+}
