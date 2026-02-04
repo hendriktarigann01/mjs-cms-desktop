@@ -1,6 +1,6 @@
 {
   "name": "mjs-cms-desktop",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Converra is a real-time, multi-platform multimedia content scheduling and distribution management system.",
   "main": "dist-electron/main.js",
   "scripts": {
