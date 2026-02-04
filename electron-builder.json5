@@ -1,6 +1,6 @@
 {
   appId: "com.converra.player",
-  productName: "Converra Player",
+  productName: "Converra",
   directories: {
     output: "release",
     buildResources: "resources",

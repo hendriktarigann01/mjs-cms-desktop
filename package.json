@@ -4,8 +4,9 @@
   "description": "Converra is a real-time, multi-platform multimedia content scheduling and distribution management system.",
   "main": "dist-electron/main.js",
   "scripts": {
-    "clean": "rimraf out dist-electron release node_modules/.cache",
-    "clean:build": "rimraf out dist-electron",
+    "clean": "rimraf out dist-electron release node_modules/.cache || echo \"Some files could not be deleted (may be in use)\"",
+    "clean:build": "rimraf out dist-electron || echo \"Some files could not be deleted\"",
+    "clean:safe": "rimraf out dist-electron node_modules/.cache",
     "dev": "npm run build:electron && concurrently \"npm run dev:next\" \"npm run dev:electron\"",
     "dev:next": "next dev -p 3001",
     "dev:electron": "wait-on http://localhost:3001 && cross-env NODE_ENV=development electron .",
@@ -13,15 +14,15 @@
     "build:next": "cross-env NODE_ENV=production next build --webpack && npm run fix:paths",
     "fix:paths": "node scripts/fix-html-paths.js",
     "build:electron": "tsc -p tsconfig.electron.json",
-    "embed:icon": "node scripts/embed-icon.js",
-    "dist": "npm run build && electron-builder --config.compression=maximum && npm run embed:icon",
-    "dist:win": "npm run build && electron-builder --win --x64 --config.compression=maximum && npm run embed:icon",
+    "dist": "npm run build && electron-builder --config.compression=maximum",
+    "dist:win": "npm run build && electron-builder --win --x64 --config.compression=maximum",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {
     "appId": "com.converra.player",
     "productName": "Converra Player",
     "executableName": "Converra",
+    "afterPack": "scripts/afterPack.js",
     "directories": {
       "output": "release",
       "buildResources": "resources"
@@ -73,12 +74,13 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true,
+      "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
       "installerIcon": "resources/icon.ico",
       "uninstallerIcon": "resources/icon.ico",
       "runAfterFinish": true,
-      "differentialPackage": true
+      "differentialPackage": true,
+      "deleteAppDataOnUninstall": false
     },
     "publish": {
       "provider": "github",
