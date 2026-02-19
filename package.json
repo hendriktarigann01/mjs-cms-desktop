@@ -4,7 +4,7 @@
   "description": "Converra is a real-time, multi-platform multimedia content scheduling and distribution management system.",
   "main": "dist-electron/main.js",
   "scripts": {
-    "clean": "rimraf out dist-electron release node_modules/.cache || echo \"Some files could not be deleted (may be in use)\"",
+    "clean": "rimraf out dist-electron release node_modules/.cache",
     "clean:build": "rimraf out dist-electron || echo \"Some files could not be deleted\"",
     "clean:safe": "rimraf out dist-electron node_modules/.cache",
     "dev": "npm run build:electron && concurrently \"npm run dev:next\" \"npm run dev:electron\"",

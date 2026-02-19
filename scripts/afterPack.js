@@ -20,12 +20,12 @@ exports.default = async function (context) {
 
   // Check if files exist
   if (!fs.existsSync(exePath)) {
-    console.error("❌ Exe not found:", exePath);
+    console.error("Exe not found:", exePath);
     return;
   }
 
   if (!fs.existsSync(iconPath)) {
-    console.error("❌ Icon not found:", iconPath);
+    console.error("Icon not found:", iconPath);
     return;
   }
 
@@ -40,19 +40,19 @@ exports.default = async function (context) {
   if (fs.existsSync(rceditBinPath)) {
     try {
       await embedWithBinary(rceditBinPath, exePath, iconPath);
-      console.log("✅ Icon embedded successfully!");
+      console.log("Icon embedded successfully!");
       return;
     } catch (error) {
-      console.log("⚠️  Binary method failed, trying module...");
+      console.log("Binary method failed, trying module...");
     }
   }
 
   // Fallback to rcedit module
   try {
     await embedWithModule(exePath, iconPath);
-    console.log("✅ Icon embedded successfully!");
+    console.log("Icon embedded successfully!");
   } catch (error) {
-    console.error("❌ Failed to embed icon:", error.message);
+    console.error("Failed to embed icon:", error.message);
     throw error;
   }
 };

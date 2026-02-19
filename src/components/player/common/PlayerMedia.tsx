@@ -28,11 +28,15 @@ export const PlayerMedia = ({
   // Idle state (no content or stopped)
   if (playbackState === "stopped" || !currentItem) {
     return (
-      <img
-        src="../idle/idle-video.gif"
-        alt="idle"
-        className="w-full h-full object-contain"
-      />
+      <video
+        className="w-full h-full object-contain scale-150"
+        autoPlay
+        loop
+        muted
+        playsInline
+      >
+        <source src="../idle/idle-video.mp4" type="video/mp4" />
+      </video>
     );
   }
 

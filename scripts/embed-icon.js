@@ -12,7 +12,7 @@ console.log("Icon path:", iconPath);
 
 // Check if files exist
 if (!fs.existsSync(exePath)) {
-  console.error("❌ ERROR: Exe not found!");
+  console.error("ERROR: Exe not found!");
   console.error("   Expected:", exePath);
 
   // Check for alternative names
@@ -31,20 +31,20 @@ if (!fs.existsSync(exePath)) {
 }
 
 if (!fs.existsSync(iconPath)) {
-  console.error("❌ ERROR: Icon not found!");
+  console.error("ERROR: Icon not found!");
   console.error("   Expected:", iconPath);
   process.exit(1);
 }
 
 // Get file stats BEFORE
 const statsBefore = fs.statSync(exePath);
-console.log("\n📊 File Info BEFORE:");
+console.log("\nFile Info BEFORE:");
 console.log("   Size:", (statsBefore.size / 1024 / 1024).toFixed(2), "MB");
 console.log("   Modified:", statsBefore.mtime.toLocaleString());
 
 // Check icon file
 const iconStats = fs.statSync(iconPath);
-console.log("\n📊 Icon File:");
+console.log("\nIcon File:");
 console.log("   Size:", (iconStats.size / 1024).toFixed(2), "KB");
 console.log("   Valid .ico format:", iconPath.endsWith(".ico") ? "✓" : "✗");
 
@@ -54,10 +54,10 @@ const rceditBinPath = path.join(
   "../node_modules/rcedit/bin/rcedit.exe",
 );
 
-console.log("\n🔍 Looking for rcedit...");
+console.log("\nLooking for rcedit...");
 if (!fs.existsSync(rceditBinPath)) {
-  console.error("❌ rcedit binary not found at:", rceditBinPath);
-  console.log("\n💡 Trying to use rcedit as module instead...");
+  console.error("rcedit binary not found at:", rceditBinPath);
+  console.log("\nTrying to use rcedit as module instead...");
   embedIconWithModule();
 } else {
   console.log("✓ Found rcedit binary");
@@ -65,7 +65,7 @@ if (!fs.existsSync(rceditBinPath)) {
 }
 
 function embedIconWithBinary() {
-  console.log("\n⏳ Method: Using rcedit binary...");
+  console.log("\nMethod: Using rcedit binary...");
 
   const args = [exePath, "--set-icon", iconPath];
   console.log("   Command:", rceditBinPath);
@@ -92,25 +92,25 @@ function embedIconWithBinary() {
     if (stderr) console.log("   Errors:", stderr);
 
     if (code === 0) {
-      console.log("\n✅ Icon embedded successfully!");
+      console.log("\nIcon embedded successfully!");
       verifySuccess();
     } else {
-      console.error(`\n❌ rcedit failed with code ${code}`);
-      console.log("\n💡 Trying module approach...");
+      console.error(`\nrcedit failed with code ${code}`);
+      console.log("\nTrying module approach...");
       embedIconWithModule();
     }
   });
 
   rcedit.on("error", (err) => {
-    console.error("\n❌ Failed to spawn rcedit:", err.message);
-    console.log("\n💡 Trying module approach...");
+    console.error("\nFailed to spawn rcedit:", err.message);
+    console.log("\nTrying module approach...");
     embedIconWithModule();
   });
 }
 
 async function embedIconWithModule() {
   try {
-    console.log("\n⏳ Method: Using rcedit module...");
+    console.log("\nMethod: Using rcedit module...");
 
     const rcedit = require("rcedit");
 
@@ -125,10 +125,10 @@ async function embedIconWithModule() {
       },
     });
 
-    console.log("\n✅ Icon embedded successfully!");
+    console.log("\nIcon embedded successfully!");
     verifySuccess();
   } catch (error) {
-    console.error("\n❌ Failed to embed icon:", error.message);
+    console.error("\nFailed to embed icon:", error.message);
     console.error("\nFull error:", error);
     process.exit(1);
   }
@@ -137,20 +137,20 @@ async function embedIconWithModule() {
 function verifySuccess() {
   // Get file stats AFTER
   const statsAfter = fs.statSync(exePath);
-  console.log("\n📊 File Info AFTER:");
+  console.log("\nFile Info AFTER:");
   console.log("   Size:", (statsAfter.size / 1024 / 1024).toFixed(2), "MB");
   console.log("   Modified:", statsAfter.mtime.toLocaleString());
 
   const sizeChanged = statsAfter.size !== statsBefore.size;
   const timeChanged = statsAfter.mtime > statsBefore.mtime;
 
-  console.log("\n🔍 Verification:");
+  console.log("\nVerification:");
   console.log("   File size changed:", sizeChanged ? "✓ Yes" : "✗ No");
   console.log("   Timestamp changed:", timeChanged ? "✓ Yes" : "✗ No");
 
   if (!timeChanged) {
-    console.warn("\n⚠️  WARNING: File timestamp didn't change!");
-    console.warn("   This might mean embedding failed silently.");
+    console.warn("\nWARNING: File timestamp didn't change!");
+    console.warn(" This might mean embedding failed silently.");
   }
 
   // Check for ICO signature
@@ -172,8 +172,8 @@ function verifySuccess() {
   }
 
   if (!found) {
-    console.error("   ICO data found: ✗ No");
-    console.error("\n⚠️  Icon embedding may have failed!");
+    console.error("ICO data found: ✗ No");
+    console.error("\nIcon embedding may have failed!");
   }
 
   console.log("\n" + "=".repeat(50));

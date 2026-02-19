@@ -3,6 +3,11 @@ export type ScreenState = "on" | "off";
 export type ConnectionStatus = "connecting" | "connected" | "disconnected";
 
 export interface PlayerData {
+  uid: any;
+  content: any;
+  content_id: any;
+  playlist: any;
+  playlist_id: any;
   player_id: number;
   player_name: string;
   location?: string;

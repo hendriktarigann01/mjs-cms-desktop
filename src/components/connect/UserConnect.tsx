@@ -37,7 +37,7 @@ export default function ConnectCodePage() {
         const storedToken = await storage.getItem("player_token");
         console.log(
           "[UserConnect] Token check:",
-          storedToken ? "✓ FOUND" : "✗ NOT FOUND"
+          storedToken ? "✓ FOUND" : "✗ NOT FOUND",
         );
 
         // CRITICAL: Check if token is valid
@@ -99,6 +99,33 @@ export default function ConnectCodePage() {
         const connection = createRealtimeConnection(newToken, "player");
         connectionRef.current = connection;
 
+        // DEBUG: Raw Pusher untuk verify event delivery (bypass abstraction layer)
+        // Jika [DEBUG-Pusher] RAW EVENT tidak muncul = masalah di backend/credentials
+        // Jika muncul = masalah di abstraction layer
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const PusherLib = (await import("pusher-js")).default;
+          const debugPusher = new PusherLib(
+            process.env.NEXT_PUBLIC_PUSHER_KEY || "",
+            { cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER || "ap1" },
+          );
+          debugPusher.connection.bind("connected", () => {
+            console.log("[DEBUG-Pusher] Raw connection OK");
+            const debugCh = debugPusher.subscribe(`pairing-${newToken}`);
+            debugCh.bind("pusher:subscription_succeeded", () =>
+              console.log("[DEBUG-Pusher] Raw subscription succeeded"),
+            );
+            debugCh.bind_global((evName: string, data: unknown) => {
+              if (!evName.startsWith("pusher:")) {
+                console.log(`[DEBUG-Pusher] *** RAW EVENT: "${evName}"`, data);
+              }
+            });
+          });
+          debugPusher.connect();
+        } catch (e) {
+          console.warn("[DEBUG-Pusher] Failed to init debug pusher:", e);
+        }
+
         setConnectionStatus("connecting");
         connection.connect();
 
@@ -107,11 +134,6 @@ export default function ConnectCodePage() {
 
           connection.subscribe(`pairing-${newToken}`, {
             "player:paired": async (data: any) => {
-              console.log("===================");
-              console.log("PAIRING EVENT RECEIVED!");
-              console.log("===================");
-              console.log("Data:", JSON.stringify(data, null, 2));
-
               let receivedToken: string | undefined;
               let playerData: any;
 
@@ -121,11 +143,6 @@ export default function ConnectCodePage() {
                 playerData =
                   data.player || data.data?.player || data.playerData;
               }
-
-              console.log("→ Received token:", receivedToken);
-              console.log("→ Expected token:", newToken);
-              console.log("→ Token match:", receivedToken === newToken);
-              console.log("→ Player data:", playerData ? "✓" : "✗");
 
               if (receivedToken === newToken && !hasNavigatedRef.current) {
                 console.log("✓ TOKEN MATCHED! Processing...");
@@ -142,7 +159,7 @@ export default function ConnectCodePage() {
                     console.log("→ Saving player_data...");
                     await storage.setItem(
                       "player_data",
-                      JSON.stringify(playerData)
+                      JSON.stringify(playerData),
                     );
                     console.log("✓ Player data saved");
                   }
